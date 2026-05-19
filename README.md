@@ -135,11 +135,7 @@ Uses **Dijkstra's Algorithm** to find:
 
 **Made by Harshit Singh**
 
-- 📧 Email: harshitsingh789123@gmail.com
-- 💻 GitHub: [harshitsingh4321](https://github.com/harshitsingh4321)
+- 📧 Email: parthsingla7404@gmail.com
+- 💻 GitHub: [ParthSingla01](https://github.com/ParthSingla01)
 
 ---
-
-## 📄 License
-
-MIT License - feel free to use this project!
