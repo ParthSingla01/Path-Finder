@@ -3,29 +3,38 @@ import axios from "axios";
 
 const BASE_URL = "https://indore-metro.onrender.com/api";
 
-export async function getStations() {
-  const res = await axios.get(`${BASE_URL}/stations`);
-  return res.data;
-}
+// 1. Getting Stations
+export const getStations = async () => {
+  const response = await fetch(`${BASE_URL}/stations`); // <-- ADD /stations HERE
+  return response.json();
+};
 
-export async function createStation(name) {
-  const res = await axios.post(`${BASE_URL}/stations`, { name });
-  return res.data;
-}
-
-export async function connectStations({ firstStation, secondStation, distance, cost }) {
-  const res = await axios.post(`${BASE_URL}/stations/connect`, {
-    firstStation,
-    secondStation,
-    distance,
-    cost,
+// 2. Creating a Station
+export const createStation = async (name) => {
+  const response = await fetch(`${BASE_URL}/stations`, { // <-- ADD /stations HERE
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name }),
   });
-  return res.data;
-}
+  return response.json();
+};
 
-export async function getShortestPath(from, to) {
-  const res = await axios.get(`${BASE_URL}/shortest-path`, {
-    params: { from, to }
+// 3. Connecting Stations
+export const connectStations = async (data) => {
+  const response = await fetch(`${BASE_URL}/stations/connect`, { // <-- CHECK THIS PATH matches your backend
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
   });
-  return res.data;
-}
+  return response.json();
+};
+
+// 4. Getting Shortest Path
+export const getShortestPath = async (startId, endId) => {
+  const response = await fetch(`${BASE_URL}/shortest-path`, { // <-- ADD /shortest-path HERE
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ startNode: startId, endNode: endId }),
+  });
+  return response.json();
+};
