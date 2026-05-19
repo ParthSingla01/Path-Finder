@@ -19,8 +19,15 @@ export default function App() {
   const [shortestPath, setShortestPath] = useState(null);
   const [pathLoading, setPathLoading] = useState(false);
 
+  const [isServerWaking, setIsServerWaking] = useState(true);
+
   useEffect(() => {
-    fetchLocations();
+    async function wakeServer() {
+      setIsServerWaking(true);
+      await fetchLocations();
+      setIsServerWaking(false);
+    }
+    wakeServer();
   }, []);
 
   async function fetchLocations() {
@@ -60,7 +67,8 @@ export default function App() {
 
   async function handleFindShortestPath(e) {
     e.preventDefault();
-    if (!fromLocation || !toLocation) return alert("Please select both locations");
+    if (!fromLocation || !toLocation)
+      return alert("Please select both locations");
 
     setPathLoading(true);
     setShortestPath(null);
@@ -69,19 +77,19 @@ export default function App() {
       const res = await getShortestPath(fromLocation, toLocation);
 
       if (!res.success) {
-        throw new Error(res.error || 'No path found');
+        throw new Error(res.error || "No path found");
       }
 
-      const readablePath = res.pathDetails.map(loc => loc.name);
+      const readablePath = res.pathDetails.map((loc) => loc.name);
 
       setShortestPath({
         ...res,
         readablePath,
-        locationDetails: res.pathDetails
+        locationDetails: res.pathDetails,
       });
     } catch (error) {
-      console.error('Path finding error:', error);
-      alert(error.message || 'Failed to find path');
+      console.error("Path finding error:", error);
+      alert(error.message || "Failed to find path");
     } finally {
       setPathLoading(false);
     }
@@ -133,10 +141,38 @@ export default function App() {
         Indore Route Pathfinder
       </h1>
 
+      {/* ADD THIS ENTIRE BLOCK: The Cold Start Banner */}
+      {isServerWaking && (
+        <div
+          style={{
+            background: "#fff3cd",
+            color: "#856404",
+            padding: "15px 20px",
+            borderRadius: "8px",
+            border: "1px solid #ffeeba",
+            marginBottom: "30px",
+            textAlign: "center",
+            boxShadow: "0 4px 6px rgba(0,0,0,0.05)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+            fontWeight: "500",
+          }}
+        >
+          <span style={{ fontSize: "1.2rem" }}>⏳</span>
+          Waking up the cloud server! Since this is a free host, it might take
+          30-50 seconds to load the first time. Hang tight!
+        </div>
+      )}
+
       {/* 🧭 Shortest Path Section */}
       <section style={cardStyle}>
         <h2 style={headingStyle}>🧭 Find Best Route</h2>
-        <form onSubmit={handleFindShortestPath} style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+        <form
+          onSubmit={handleFindShortestPath}
+          style={{ display: "flex", flexWrap: "wrap", gap: 10 }}
+        >
           <select
             value={fromLocation}
             onChange={(e) => setFromLocation(e.target.value)}
@@ -144,7 +180,9 @@ export default function App() {
           >
             <option value="">From Location</option>
             {locations.map((loc) => (
-              <option key={loc._id} value={loc._id}>{loc.name}</option>
+              <option key={loc._id} value={loc._id}>
+                {loc.name}
+              </option>
             ))}
           </select>
 
@@ -155,19 +193,29 @@ export default function App() {
           >
             <option value="">To Location</option>
             {locations.map((loc) => (
-              <option key={loc._id} value={loc._id}>{loc.name}</option>
+              <option key={loc._id} value={loc._id}>
+                {loc.name}
+              </option>
             ))}
           </select>
 
-          <button type="submit" style={buttonStyle} disabled={pathLoading}>Find</button>
+          <button type="submit" style={buttonStyle} disabled={pathLoading}>
+            Find
+          </button>
         </form>
 
         {shortestPath && (
           <div style={{ marginTop: 20 }}>
             <h3 style={{ color: "#004d40" }}>✅ Best Route</h3>
-            <p><strong>Path:</strong> {shortestPath.readablePath.join(" → ")}</p>
-            <p><strong>Total Distance:</strong> {shortestPath.totalDistance} km</p>
-            <p><strong>Total Cost:</strong> ₹{shortestPath.totalCost}</p>
+            <p>
+              <strong>Path:</strong> {shortestPath.readablePath.join(" → ")}
+            </p>
+            <p>
+              <strong>Total Distance:</strong> {shortestPath.totalDistance} km
+            </p>
+            <p>
+              <strong>Total Cost:</strong> ₹{shortestPath.totalCost}
+            </p>
           </div>
         )}
       </section>
@@ -175,23 +223,36 @@ export default function App() {
       {/* 📍 Add Location */}
       <section style={cardStyle}>
         <h2 style={headingStyle}>📍 Add Location</h2>
-        <form onSubmit={handleCreateLocation} style={{ display: "flex", gap: "10px" }}>
+        <form
+          onSubmit={handleCreateLocation}
+          style={{ display: "flex", gap: "10px" }}
+        >
           <input
             type="text"
             placeholder="Location name"
             value={newLocationName}
             onChange={(e) => setNewLocationName(e.target.value)}
             disabled={loading}
-            style={{ flex: 1, padding: 10, borderRadius: 6, border: "1px solid #ccc" }}
+            style={{
+              flex: 1,
+              padding: 10,
+              borderRadius: 6,
+              border: "1px solid #ccc",
+            }}
           />
-          <button type="submit" style={buttonStyle} disabled={loading}>Add</button>
+          <button type="submit" style={buttonStyle} disabled={loading}>
+            Add
+          </button>
         </form>
       </section>
 
       {/* 🔗 Connect Locations */}
       <section style={cardStyle}>
         <h2 style={headingStyle}>🔗 Connect Locations</h2>
-        <form onSubmit={handleConnectLocations} style={{ display: "grid", gap: 10 }}>
+        <form
+          onSubmit={handleConnectLocations}
+          style={{ display: "grid", gap: 10 }}
+        >
           <div>
             <label>Select first location: </label>
             <select
@@ -202,7 +263,9 @@ export default function App() {
             >
               <option value="">-- Select --</option>
               {locations.map((loc) => (
-                <option key={loc._id} value={loc._id}>{loc.name}</option>
+                <option key={loc._id} value={loc._id}>
+                  {loc.name}
+                </option>
               ))}
             </select>
           </div>
@@ -217,7 +280,9 @@ export default function App() {
             >
               <option value="">-- Select --</option>
               {locations.map((loc) => (
-                <option key={loc._id} value={loc._id}>{loc.name}</option>
+                <option key={loc._id} value={loc._id}>
+                  {loc.name}
+                </option>
               ))}
             </select>
           </div>
@@ -236,7 +301,9 @@ export default function App() {
             onChange={(e) => setCost(e.target.value)}
             style={{ padding: 8, borderRadius: 6 }}
           />
-          <button type="submit" style={buttonStyle} disabled={loading}>Connect</button>
+          <button type="submit" style={buttonStyle} disabled={loading}>
+            Connect
+          </button>
         </form>
       </section>
 
@@ -254,12 +321,15 @@ export default function App() {
                   <ul>
                     {location.connections.map((conn, idx) => (
                       <li key={idx}>
-                        ➝ <strong>{conn.station?.name || "Unknown"}</strong> | {conn.distance} km | ₹{conn.cost}
+                        ➝ <strong>{conn.station?.name || "Unknown"}</strong> |{" "}
+                        {conn.distance} km | ₹{conn.cost}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p style={{ marginLeft: 20, color: "#777" }}>No connections</p>
+                  <p style={{ marginLeft: 20, color: "#777" }}>
+                    No connections
+                  </p>
                 )}
               </li>
             ))}
